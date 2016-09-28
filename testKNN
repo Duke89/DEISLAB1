@@ -1,0 +1,34 @@
+	//EXPERIMENT 2
+	double trainX = xArray[0];
+	double trainY = yArray[0];
+	double euDist[19];
+	double sort[19];
+	int same = 0;
+	int diff = 0;
+	
+	for(int j = 1; j<20; j++)
+	{
+		euDist[j] = sqrt( pow(xArray[j]-trainX,2) + pow(yArray[j]-trainY,2));
+		printf("%f\n",euDist[j]);
+	}
+	/*CURRENT HERE*/
+	memcpy(sort,euDist,sizeof());
+	double min = 0;
+
+	for(int j = 0; j<19; j++)
+	{
+		printf("%f\n",sort[j]);
+	}
+
+	for(int k = 0; k<19; k++)
+	{
+		for(int l = k+1; l<19; l++)
+		{
+			if(sort[k] > sort[l])
+			{
+				min = sort[k];
+				sort[k] = sort[l];
+				sort[l] = min;
+			}
+		}
+	}

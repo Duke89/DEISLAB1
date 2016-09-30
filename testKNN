@@ -1,34 +1,44 @@
-	//EXPERIMENT 2
-	double trainX = xArray[0];
-	double trainY = yArray[0];
+	//EXPERIMENT 3
+
 	double euDist[19];
 	double sort[19];
 	int same = 0;
 	int diff = 0;
-	
-	for(int j = 1; j<20; j++)
+	for(int i = 0; i<10; i++)
 	{
-		euDist[j] = sqrt( pow(xArray[j]-trainX,2) + pow(yArray[j]-trainY,2));
-		printf("%f\n",euDist[j]);
-	}
-	/*CURRENT HERE*/
-	memcpy(sort,euDist,sizeof());
-	double min = 0;
-
-	for(int j = 0; j<19; j++)
-	{
-		printf("%f\n",sort[j]);
-	}
-
-	for(int k = 0; k<19; k++)
-	{
-		for(int l = k+1; l<19; l++)
+		printf("<------------------EUCLIDEAN------------------>\n");
+		for(int j = 0; j<19; j++)
 		{
-			if(sort[k] > sort[l])
+			euDist[j] = sqrt( pow(xArray[j+1]-testSetX[i],2) + pow(yArray[j+1]-testSetY[i],2));
+			printf("%f\n",euDist[j]);
+		}
+
+		/*CURRENT HERE*/
+		memcpy(sort,euDist,sizeof(euDist));
+		double min = 0;
+
+		printf("<------------------COPY------------------>\n");
+		for(int j = 0; j<19; j++)
+		{
+			printf("%f\n",sort[j]);
+		}
+
+		printf("<------------------SORTING------------------>\n");
+		for(int k = 0; k<19; k++)
+		{
+			for(int l = k+1; l<19; l++)
 			{
-				min = sort[k];
-				sort[k] = sort[l];
-				sort[l] = min;
+				if(sort[k] > sort[l])
+				{
+					min = sort[k];
+					sort[k] = sort[l];
+					sort[l] = min;
+				}
 			}
+		}
+		printf("<------------------SORTED------------------>\n");
+		for(int j = 0; j<19; j++)
+		{
+			printf("%f\n",sort[j]);
 		}
 	}

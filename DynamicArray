@@ -1,0 +1,53 @@
+	//<------------------DYNAMIC ARRAY------------------>
+	int aSize = 5;
+	double *pt1 = (double*)calloc(aSize,sizeof(double));
+	/*pt1[0] = 6;
+	pt1[1] = 5;
+	pt1[2] = 4;
+	pt1[3] = 3;
+	pt1[4] = 2;
+	pt1[5] = 1;*/
+	for(int i = 0; i<=aSize; i++)
+	{
+		pt1[i] = i+1;
+	}
+	for(int i = 0; i<=aSize; i++)
+	{
+		printf("%f\n",pt1[i]);
+	}
+	pt1 = NULL;
+	free(pt1);
+	aSize--;
+	pt1 = (double*)realloc(pt1,sizeof(double));
+	for(int i = 0; i<=aSize; i++)
+	{
+		printf("%f\n",pt1[i]);
+	}
+	for(int i = 0; i<=aSize; i++)
+	{
+		pt1[i] = 6-i;
+	}
+	printf("NEW DATA\n");
+	for(int i = 0; i<=aSize; i++)
+	{
+		printf("%f\n",pt1[i]);
+	}
+	double min = 0;
+	for(int k = 0; k<=aSize; k++)
+	{
+		for(int l = k+1; l<=aSize; l++)
+		{
+			if(pt1[k] > pt1[l])
+			{
+				min = pt1[k];
+				pt1[k] = pt1[l];
+				pt1[l] = min;
+			}
+		}
+	}
+	printf("SORTED\n");
+	for(int i = 0; i<=aSize; i++)
+	{
+		printf("%f\n",pt1[i]);
+	}
+	//<------------------DYNAMIC ARRAY------------------>

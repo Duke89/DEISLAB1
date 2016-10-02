@@ -50,4 +50,6 @@
 	{
 		printf("%f\n",pt1[i]);
 	}
+	/*FREE AFTER DONE*/
+	free(pt1);
 	//<------------------DYNAMIC ARRAY------------------>

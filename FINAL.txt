@@ -1,0 +1,164 @@
+	//<------------------EXPERIMENT1------------------>
+
+	//X AND Y AVERAGE ARRAY
+	double xArray[20];
+	double yArray[20];
+
+	//TEST SET
+	double testSetX[6];
+	double testSetY[6];
+
+	//TRAINSET
+	double trainSetX[14];
+	double trainSetY[14];
+
+	//20objects
+	for(int i = 0; i < (int)gesturesData.size(); i++){
+		double avgx = 0.0;
+		double avgy = 0.0;
+		//printf("<--------------DATA%d-------------->\n",i+1);
+		//10objects
+		for(int j = 0; j < (int)gesturesData.at(i).size(); j++){
+			//at(1-20) | at(1-10) | at(1-2)
+			//TIMESTAMPS | DATA FOR X/Y | X or Y
+			//printf("X: %f Y: %f\n",gesturesData.at(i).at(j).at(0), gesturesData.at(i).at(j).at(1));
+			avgx += gesturesData.at(i).at(j).at(0);
+			avgy += gesturesData.at(i).at(j).at(1);
+		}
+
+		//calculate average
+		avgx = avgx/10;
+		xArray[i] = avgx;
+
+		avgy = avgy/10;
+		yArray[i] = avgy;
+
+		//print average
+		//printf("Average X: %f\n",avgx);
+		//printf("Average Y: %f\n",avgy);
+	}
+
+	//<------------------EXPERIMENT2------------------>
+	//6TESTSET & 14TRAINSET => CHECK WITH 70% OF DATA
+	int countTrain = 0;
+	int countTest = 0;
+	for(int i = 0; i<20; i++)
+	{
+		if(i>2 && i<10)
+		{
+			trainSetX[countTrain] =xArray[i];
+			trainSetY[countTrain] =yArray[i];
+			countTrain++;
+		}
+		else if(i>12 && i<20)
+		{
+			trainSetX[countTrain] =xArray[i];
+			trainSetY[countTrain] =yArray[i];
+			countTrain++;
+		}
+		else
+		{
+			testSetX[countTest] = xArray[i];
+			testSetY[countTest] = yArray[i];
+			countTest++;
+		}
+	}
+	//testset => 3same & 3diff 
+
+	//<------------------EXPERIMENT3------------------>
+	unsigned int K = 0;
+	printf("Enter your K\n");
+	scanf("%d",&K);
+	printf("You entered %d as K\n",K);
+
+	double euDist[14];
+	double sort[14];
+
+	//HOW ACCURATE IS OUR KNN?
+	int correct = 0;
+	//IS DATATYPE SAME/DIFF ?
+	int s = 0;
+
+	for(int i = 0; i<6; i++)
+	{
+		//SAME
+		if(i<3)
+			s = 1;
+		//DIFF
+		else
+			s = 0;
+		//printf("<------------------EUCLIDEAN------------------>\n");
+		for(int j = 0; j<14; j++)
+		{
+			euDist[j] = sqrt( pow(xArray[j+6]-testSetX[i],2) + pow(yArray[j+6]-testSetY[i],2));
+			//printf("%f\n",euDist[j]);
+		}
+
+		memcpy(sort,euDist,sizeof(euDist));
+		double min = 0;
+		
+		/*printf("<------------------COPY------------------>\n");
+		for(int f = 0; f<14; f++)
+		{
+			printf("%f\n",sort[f]);
+		}*/
+
+		//printf("<------------------SORTING------------------>\n");
+		for(int k = 0; k<14; k++)
+		{
+			for(int l = k+1; l<14; l++)
+			{
+				if(sort[k] > sort[l])
+				{
+					min = sort[k];
+					sort[k] = sort[l];
+					sort[l] = min;
+				}
+			}
+		}
+		/*printf("<------------------SORTED------------------>\n");
+		for(int l = 0; l<14; l++)
+		{
+			printf("%f\n",sort[l]);
+		}*/
+
+		//SEARCH FOR MIN DIST AND CHECK SAME/DIFFERENT
+		double traverse = 0.0;
+		//COUNT TRAVERSE
+		int count = 0;
+		//COUNT K FINDS
+		int find = 0;
+		//ARE THERE MORE SAME OR DIFF?
+		int same = 0;
+		int diff = 0;
+		
+		//FIND K NEAREST DISTANCES
+		while(find != K-1)
+		{
+			//TRAVERSE THE DISTANCES
+			traverse = euDist[count];
+			//IF FOUND CHECK SAME/DIFF
+			if(traverse == sort[find])
+			{
+				find++;
+				if(count<4)
+					same++;
+				else
+					diff++;
+			}
+			//INCREMENT COUNTER
+			count++;
+			//IF END OF EUDISTANCE ARRAY AND NOT FOUND ALL K DISTANCES
+			if(count == 14)
+				count = 0;
+		}
+		//CHECK WEIGHT OF SAME/DIFF
+		if(same > diff)
+			same = 1;
+		else
+			same = 0;
+		//COMPARE WITH REAL AVERAGE DATA TYPE
+		if(same == 1 && s == 1 || same == 0 && s == 0)
+			correct++;
+	}
+	printf("CORRECTNESS: %.3f%%\n",(double)correct*100/6);

@@ -1,0 +1,151 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1053{\fonttbl{\f0\fnil\fcharset0 Calibri;}{\f1\fnil Consolas;}{\f2\fnil\fcharset0 Consolas;}}
+{\colortbl ;\red128\green128\blue128;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue255;\red0\green128\blue0;\red163\green21\blue21;}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sa200\sl276\slmult1\lang29\f0\fs22 To calculate the KNN for some specific feature, an extraction of the studentdata.txt file needs to be done. This can be extracted by doing \cf1\highlight2\f1\fs19 gesturesData\cf3 .at(i).at(j).at(0\lang1053\f2 ) \f0\fs22 in a double for loop which will give us the data for X position and by doing \cf1\f1\fs19 gesturesData\cf3 .at(i).at(j).at(1)\f2  \f0\fs22 we will get the data for the Y position. From the studentdata.txt file we can see that the first half of the data is for the same lane and the second half is for the different lane which we need to remember so that we can compare our Knn with the actual data. \par
+So what we do first is to take each ten data of all 200 data in the txt file and calculate the \b average\b0  for them which is then put in \f1\fs19 xArray[i]\f0\fs22 and \f1\fs19 yArray[i]\f0\fs22 so there will be 20 average x positions and 20 average y positions stored. This is also used for the variance and standard deviation calculations which are:\par
+\cf4\f1\fs19 for\cf3 (\cf4 int\cf3  i = 0; i < (\cf4 int\cf3 )\cf1 gesturesData\cf3 .size(); i++)\{\par
+\tab\cf4 double\cf3  avgx = 0.0;\par
+\tab\cf4 double\cf3  avgy = 0.0;\par
+\tab\cf4 for\cf3 (\cf4 int\cf3  j = 0; j < (\cf4 int\cf3 )\cf1 gesturesData\cf3 .at(i).size(); j++)\{\par
+\tab\tab avgx += \cf1 gesturesData\cf3 .at(i).at(j).at(0);\par
+\tab\tab avgy += \cf1 gesturesData\cf3 .at(i).at(j).at(1);\par
+\tab\}\par
+\tab\cf5 //calculate average\cf3\par
+\tab avgx = avgx/10;\par
+\tab xArray[i] = avgx;\par
+\tab avgy = avgy/10;\par
+\tab yArray[i] = avgy;\par
+\}\f0\fs22\par
+\cf5\f1\fs19 //\f2 Variance\cf3\f0\fs22\par
+\f1\fs19 sumX += pow(\cf1 gesturesData\cf3 .at(i).at(j).at(0) - xArray[i],2);\par
+sumY += pow(\cf1 gesturesData\cf3 .at(i).at(j).at(1) - yArray[i],2);\par
+varX[i] = sumX/10;\par
+varY[i] = sumY/10;\par
+\cf5 //standard deviation\cf3\par
+\cf4 for\cf3 (\cf4 int\cf3  j = 0; j<20; j++)\par
+\{\par
+\tab std_Dx[j] = sqrt(varX[j]);\par
+\tab std_Dy[j] = sqrt(varY[j]);\par
+\}\par
+\f0\fs22 A reading from keyboard is then used to choose which one of these three features shall be used for KNN. The chosen feature arrays (x and y) will be copied to two temporary arrays (\f1\fs19 tempX[i]\f0\fs22 and \f1\fs19 tempY[i]\f0\fs22 ) which will also be pickedwised stored to the testset array and trainset array. We store the first three data from same lane and also the three first data from different lane to the testset, the rest is put to the train set so that we have 6 datas in test- and 14 datas in train-set.\par
+\f1\fs19 printf(\cf6 "\\nEnter your feature\\n 1:Mean\\n 2:Variance\\n 3:Standard deviation\\n"\cf3 );\par
+scanf(\cf6 "%d"\cf3 ,&F);\par
+\cf4 switch\cf3 (F)\{\par
+\tab\cf4 case\cf3  1:\par
+\tab\tab printf(\cf6 "You choose mean feature!\\n"\cf3 );\par
+\tab\tab memcpy(tempX,xArray,\cf4 sizeof\cf3 (xArray));\par
+\tab\tab memcpy(tempY,yArray,\cf4 sizeof\cf3 (yArray));\par
+\tab\tab option = 1;\par
+\tab\tab\cf4 break\cf3 ;\par
+\tab\cf4 case\cf3  2:\par
+\tab\tab printf(\cf6 "You choose variance feature!\\n"\cf3 );\par
+\tab\tab memcpy(tempX,varX,\cf4 sizeof\cf3 (varX));\par
+\tab\tab memcpy(tempY,varY,\cf4 sizeof\cf3 (varY));\par
+\tab\tab option = 1;\par
+\tab\tab\cf4 break\cf3 ;\par
+\tab\cf4 case\cf3  3:\par
+\tab\tab printf(\cf6 "You choose Standard deviation feature!\\n"\cf3 );\par
+\tab\tab memcpy(tempX,std_Dx,\cf4 sizeof\cf3 (std_Dx));\par
+\tab\tab memcpy(tempY,std_Dy,\cf4 sizeof\cf3 (std_Dy));\par
+\tab\tab option = 1;\par
+\tab\tab\cf4 break\cf3 ;\f0\fs22\par
+\f1\fs19\tab\cf4 for\cf3 (\cf4 int\cf3  i = 0; i<20; i++)\par
+\tab\{\par
+\tab\tab\cf4 if\cf3 (i>2 && i<10)\par
+\tab\tab\{\par
+\tab\tab\tab trainSetX[countTrain] =tempX[i];\par
+\tab\tab\tab trainSetY[countTrain] =tempY[i];\par
+\tab\tab\tab countTrain++;\par
+\tab\tab\}\par
+\tab\tab\cf4 else\cf3  \cf4 if\cf3 (i>12 && i<20)\par
+\tab\tab\{\par
+\tab\tab\tab trainSetX[countTrain] =tempX[i];\par
+\tab\tab\tab trainSetY[countTrain] =tempY[i];\par
+\tab\tab\tab countTrain++;\par
+\tab\tab\}\par
+\tab\tab\cf4 else\cf3\par
+\tab\tab\{\par
+\tab\tab\tab testSetX[countTest] = tempX[i];\par
+\tab\tab\tab testSetY[countTest] = tempY[i];\par
+\tab\tab\tab countTest++;\par
+\tab\tab\}\par
+\tab\}\par
+\f0\fs22 Each data in the testset will be used to calculate the euclidean distance to alla data points in the trainset.\par
+\cf5\f1\fs19 //calculate euclidean distances\cf3\par
+\cf4 for\cf3 (\cf4 int\cf3  j = 0; j<14; j++)\par
+\{\par
+\f2\tab\f1 euDist[j] = sqrt( pow(trainSetX[j]-testSetX[i],2) + pow(trainSetY[j]-\f2\tab\f1 testSetY[i],2));\par
+\}\par
+\f0\fs22 This is looped for all six datapoints in the testset where we also need to remember what the actual lane is so we can compare this after the knn algorithm.\par
+\cf4\f1\fs19 for\cf3 (\cf4 int\cf3  i = 0; i<6; i++)\par
+\{\par
+\tab\cf5 //same\cf3\par
+\tab\cf4 if\cf3 (i<3)\par
+\tab\tab s = 1;\par
+\tab\cf5 //different\cf3\par
+\tab\cf4 else\cf3\par
+\tab\tab s = 0;\par
+\f0\fs22 A copy of the euclidean array will be stored in the \f1\fs19 sort\f2  \f0\fs22 array so that we have a sorted one also. This is so we can easily get the smallest distance for our knn.\par
+\cf5\f1\fs19 //make copy of original euclidean distance array\cf3\par
+memcpy(sort,euDist,\cf4 sizeof\cf3 (euDist));\par
+\cf4 double\cf3  min = 0;\par
+\par
+\cf5 //Bubblesort\cf3\par
+\cf4 for\cf3 (\cf4 int\cf3  k = 0; k<14; k++)\par
+\{\par
+\tab\cf4 for\cf3 (\cf4 int\cf3  l = k+1; l<14; l++)\par
+\tab\{\par
+\tab\tab\cf4 if\cf3 (sort[k] > sort[l])\par
+\tab\tab\{\par
+\tab\tab\tab min = sort[k];\par
+\tab\tab\tab sort[k] = sort[l];\par
+\tab\tab\tab sort[l] = min;\par
+\tab\tab\}\par
+\tab\}\par
+\}\par
+\f0\fs22 Depending on the chosen K, we need to find K minimum distances. We then go through the whole euclidean distance array to find at which position the K minimum distances are. If the min distance are below the seven first then we know that its a same lane type otherwise if its above seven, then its a different lane type. \par
+\cf5\f1\fs19 //find K min distances\cf3\par
+\cf4 while\cf3 (find != K-1)\par
+\{\par
+\tab\cf5 //go through all euclidean distances\cf3\par
+\tab traverse = euDist[count];\par
+\tab\cf5 //found min distance. check type\cf3\par
+\tab\cf4 if\cf3 (traverse == sort[find])\par
+\tab\{\par
+\tab\tab find++;\par
+\tab\tab\cf4 if\cf3 (count<7)\par
+\tab\tab\tab same++;\par
+\tab\tab\cf4 else\cf3\par
+\tab\tab\tab diff++;\par
+\tab\}\par
+\tab\cf5 //increment counter\cf3\par
+\tab count++;\par
+\tab\cf5 //restart search if not yet found all K min distances\cf3\par
+\tab\cf4 if\cf3 (count == 14)\par
+\tab\tab count = 0;\par
+\}\par
+\f0\fs22 Then we check if there are more same than different or more different then same to decide the lane type. \par
+\cf5\f1\fs19 //check the weight\cf3\par
+\cf4 if\cf3 (same > diff)\{\par
+\tab same = 1;\par
+\tab printf(\cf6 "KNN: SAME\\n"\cf3 );\par
+\tab\cf4 if\cf3 (s == 1)\par
+\tab\tab printf(\cf6 "Actual: SAME\\n"\cf3 );\par
+\tab\cf4 else\cf3\par
+\tab\tab printf(\cf6 "Actual: DIFF\\n"\cf3 );\par
+\}\par
+\cf4 else\cf3\{\par
+\tab same = 0;\par
+\tab printf(\cf6 "KNN: DIFF\\n"\cf3 );\par
+\tab\cf4 if\cf3 (s == 1)\par
+\tab\tab printf(\cf6 "Actual: SAME\\n"\cf3 );\par
+\tab\cf4 else\cf3\par
+\tab\tab printf(\cf6 "Actual: DIFF\\n"\cf3 );\par
+\}\par
+\f0\fs22 This is then compared to the real data which we had to remember in \f1\fs19 s\f2  \f0\fs22 variable, and is in the beginning of the testset loop. By this we can check how accurate we are which we do with the \f1\fs19 correct\f2  \f0\fs22 variable.\par
+\cf5\f1\fs19 //compare with actual data\cf3\par
+\cf4 if\cf3 (same == 1 && s == 1 || same == 0 && s == 0)\par
+\tab correct++;\par
+\f0\fs22 This is printed when the testset loop is done\par
+\f1\fs19 printf(\cf6 "KNN accuracy: %.3f%%\\n"\cf3 ,(\cf4 double\cf3 )correct*100/6);\cf0\highlight0\lang29\f0\fs22\par
+}
+ 

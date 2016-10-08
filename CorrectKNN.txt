@@ -1,0 +1,229 @@
+	//features +  KNN
+
+	//x and y features
+	double xArray[20];
+	double yArray[20];
+
+	//testset
+	double testSetX[6];
+	double testSetY[6];
+
+	//trainset
+	double trainSetX[14];
+	double trainSetY[14];
+
+	//20 objects
+	for(int i = 0; i < (int)gesturesData.size(); i++){
+		double avgx = 0.0;
+		double avgy = 0.0;
+		//printf("<-------------Data%d------------->\n",i+1);
+		//10 objects
+		for(int j = 0; j < (int)gesturesData.at(i).size(); j++){
+			//at(1-20) | at(1-10) | at(1-2)
+			//timestamp | data | x or y
+			//printf("X: %f Y: %f\n",gesturesData.at(i).at(j).at(0), gesturesData.at(i).at(j).at(1));
+			avgx += gesturesData.at(i).at(j).at(0);
+			avgy += gesturesData.at(i).at(j).at(1);
+		}
+		//calculate average
+		avgx = avgx/10;
+		xArray[i] = avgx;
+		avgy = avgy/10;
+		yArray[i] = avgy;
+	}
+
+	double varX[20];
+	double varY[20];
+	//20objects
+	for(int i = 0; i < (int)gesturesData.size(); i++){
+		double sumX = 0.0;
+		double sumY = 0.0;
+		//printf("<-------------Data%d------------->\n",i+1);
+		//10objects
+		for(int j = 0; j < (int)gesturesData.at(i).size(); j++){
+			//at(1-20) | at(1-10) | at(1-2)
+			//timestamp | data | x or y
+			//printf("X: %f Y: %f\n",gesturesData.at(i).at(j).at(0), gesturesData.at(i).at(j).at(1));
+			sumX += pow(gesturesData.at(i).at(j).at(0) - xArray[i],2);
+			sumY += pow(gesturesData.at(i).at(j).at(1) - yArray[i],2);
+		}
+
+		varX[i] = sumX/10;
+		varY[i] = sumY/10;
+	}
+
+	double std_Dx[20];
+	double std_Dy[20];
+	//standard deviation
+	for(int j = 0; j<20; j++)
+	{
+		std_Dx[j] = sqrt(varX[j]);
+		std_Dy[j] = sqrt(varY[j]);
+
+	}
+
+	unsigned int F = 0;
+
+	double tempY[20];
+	double tempX[20];
+	int option = 0;
+
+	do{
+		printf("\nEnter your feature\n 1:Mean\n 2:Variance\n 3:Standard deviation\n");
+		scanf("%d",&F);
+		switch(F){
+		case 1:
+			printf("You choose mean feature!\n");
+			memcpy(tempX,xArray,sizeof(xArray));
+			memcpy(tempY,yArray,sizeof(yArray));
+			option = 1;
+			break;
+		case 2:
+			printf("You choose variance feature!\n");
+			memcpy(tempX,varX,sizeof(varX));
+			memcpy(tempY,varY,sizeof(varY));
+			option = 1;
+			break;
+		case 3:
+			printf("You choose Standard deviation feature!\n");
+			memcpy(tempX,std_Dx,sizeof(std_Dx));
+			memcpy(tempY,std_Dy,sizeof(std_Dy));
+			option = 1;
+			break;
+		default :
+			printf("Incorrect feature, choose again!\n");
+			continue;
+		}
+	}while(option == 0);
+
+	//6 features in testset (3 same and 3 different) & 14 features in trainset (7 same and 7 different) compare with ~70% of data
+	int countTrain = 0;
+	int countTest = 0;
+	for(int i = 0; i<20; i++)
+	{
+		if(i>2 && i<10)
+		{
+			trainSetX[countTrain] =tempX[i];
+			trainSetY[countTrain] =tempY[i];
+			countTrain++;
+		}
+		else if(i>12 && i<20)
+		{
+			trainSetX[countTrain] =tempX[i];
+			trainSetY[countTrain] =tempY[i];
+			countTrain++;
+		}
+		else
+		{
+			testSetX[countTest] = tempX[i];
+			testSetY[countTest] = tempY[i];
+			countTest++;
+		}
+	}
+
+	unsigned int K = 0;
+	int K_opt = 0;
+	do{
+		printf("Enter your K\n");
+		scanf("%d",&K);
+		if(K<1 || K>14)
+		{
+			printf("Invalid K, choose again!\n");
+		}
+		else
+			K_opt = 1;
+	}while(K_opt == 0);
+
+	double euDist[14];
+	double sort[14];
+
+	//accuracy of our knn
+	int correct = 0;
+	//same or different
+	int s = 0;
+
+	for(int i = 0; i<6; i++)
+	{
+		//same
+		if(i<3)
+			s = 1;
+		//different
+		else
+			s = 0;
+		//calculate euclidean distances
+		for(int j = 0; j<14; j++)
+		{
+			euDist[j] = sqrt( pow(trainSetX[j]-testSetX[i],2) + pow(trainSetY[j]-testSetY[i],2));
+		}
+
+		//make copy of original euclidean distance array
+		memcpy(sort,euDist,sizeof(euDist));
+		double min = 0;
+
+		//Bubblesort
+		for(int k = 0; k<14; k++)
+		{
+			for(int l = k+1; l<14; l++)
+			{
+				if(sort[k] > sort[l])
+				{
+					min = sort[k];
+					sort[k] = sort[l];
+					sort[l] = min;
+				}
+			}
+		}
+
+		//temp holder for traversing the euclidean distances
+		double traverse = 0.0;
+		//counter for traverse
+		int count = 0;
+		//K min distances
+		int find = 0;
+		//same/diff counts
+		int same = 0;
+		int diff = 0;
+		
+		//find K min distances
+		while(find != K-1)
+		{
+			//go through all euclidean distances
+			traverse = euDist[count];
+			//found min distance. check type
+			if(traverse == sort[find])
+			{
+				find++;
+				if(count<7)
+					same++;
+				else
+					diff++;
+			}
+			//increment counter
+			count++;
+			//restart search if not yet found all K min distances
+			if(count == 14)
+				count = 0;
+		}
+		//check the weight
+		if(same > diff){
+			same = 1;
+			printf("KNN: SAME\n");
+			if(s == 1)
+				printf("Actual: SAME\n");
+			else
+				printf("Actual: DIFF\n");
+		}
+		else{
+			same = 0;
+			printf("KNN: DIFF\n");
+			if(s == 1)
+				printf("Actual: SAME\n");
+			else
+				printf("Actual: DIFF\n");
+		}
+		//compare with actual data
+		if(same == 1 && s == 1 || same == 0 && s == 0)
+			correct++;
+	}
+	printf("KNN accuracy: %.3f%%\n",(double)correct*100/6);
+	student_getFeatures(all_gestures_features_mini, gesturesData);
